@@ -20,24 +20,42 @@ class TweetsViewController: UIViewController, UITableViewDataSource, UITableView
         super.viewDidLoad()
         tableView.dataSource = self
         tableView.delegate = self
+        tableView.estimatedRowHeight = 120.0
+        tableView.rowHeight = UITableViewAutomaticDimension
+
         MBProgressHUD.showHUDAddedTo(self.view, animated: true)
-        //let tweets = TwitterClient.sharedInstance.getHomeTimeLine()
-        TwitterClient.sharedInstance.loginWithCompletion() {
-            (user :User? , error: NSError?) in
-            if user != nil {
-                self.tweets = TwitterClient.sharedInstance.getHomeTimeLine()
-            }
-            else {
-                //Hanlde Login error
-            }
-        }
         
+        TwitterClient.sharedInstance.homeTimeline(nil) { (tweets, error) -> () in
+            self.tweets = tweets
+            self.tableView.reloadData()
+        }
         //         Hide HUD once network request comes back (must be done on main UI thread)
         MBProgressHUD.hideHUDForView(self.view, animated: true)
         
+        // Initialize a UIRefreshControl
+        let refreshControl = UIRefreshControl()
+        refreshControl.addTarget(self, action: "refreshControlAction:", forControlEvents: UIControlEvents.ValueChanged)
+        tableView.insertSubview(refreshControl, atIndex: 0)
+
         
         // Do any additional setup after loading the view.
     }
+    
+    func refreshControlAction(refreshControl: UIRefreshControl) {
+        
+        MBProgressHUD.showHUDAddedTo(self.view, animated: true)
+        // Make network request to fetch latest data
+        TwitterClient.sharedInstance.homeTimeline(nil) { (tweets, error) -> () in
+            self.tweets = tweets
+            self.tableView.reloadData()
+        }
+        MBProgressHUD.hideHUDForView(self.view, animated: true)
+
+        // Do the following when the network request comes back successfully:
+        // Update tableView data source
+        refreshControl.endRefreshing()
+    }
+    
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
@@ -50,11 +68,45 @@ class TweetsViewController: UIViewController, UITableViewDataSource, UITableView
     }
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 20
-    }
+        if tweets != nil {
+            return (tweets?.count)!
+        }
+        return 0    }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("TweetCell", forIndexPath: indexPath)
+        let cell = tableView.dequeueReusableCellWithIdentifier("TweetCell", forIndexPath: indexPath) as! TweetTableViewCell
+        let tweet = tweets![indexPath.row]
+        cell.realName.text = tweet.user!.name
+        cell.UserName.text = "@" + tweet.user!.screenName!
+        cell.profileImage.setImageWithURL(NSURL(string: tweet.user!.profileImageURL!)!)
+        cell.tweetText.text = tweet.text
+        cell.favoriteCountLabel.text = String(tweet.favCount!)
+        cell.retweetCountLabel.text = String(tweet.retweetCount!)
+        cell.tweetIdSpec = tweet.tweetId
+
+//        cell.favCtLabel.text = String(tweet.favCount!)
+//        cell.retweetCtLabel.text = String(tweet.retweetCount!)
+//        cell.tweetIdSpec = tweet.tweetId
+        let elapsedTime = NSDate().timeIntervalSinceDate(tweet.createdAt!)
+        let duration = Int(elapsedTime)
+        var finalTime = "0"
+        
+        if duration / (360 * 24) >= 1 {
+            finalTime = String(duration / (360 * 24)) + "d"
+        }
+        else if duration / 360 >= 1 {
+            finalTime = String(duration / 360) + "h"
+            
+        }
+        else if duration / 60 >= 1 {
+            finalTime = String(duration / 60) + "min"
+        }
+        else {
+            finalTime = String(duration) + "s"
+        }
+        
+        cell.createdTime.text = String(finalTime)
+
         return cell
     }
     

@@ -31,6 +31,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             
             window?.rootViewController = vc
         }
+        print("application started ")
         return true
     }
     

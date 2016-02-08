@@ -41,8 +41,6 @@ class TwitterClient: BDBOAuth1SessionManager {
     
     func loginWithCompletion(completion: (user: User?, error: NSError?) -> ()) {
         loginCompletion = completion
-//        TwitterClient.sharedInstance.requestSerializer.removeAccessToken()
-        
         TwitterClient.sharedInstance.requestSerializer.removeAccessToken()
         TwitterClient.sharedInstance.fetchRequestTokenWithPath("oauth/request_token", method: "GET", callbackURL: NSURL(string: "cptwitterdemo://oauth"), scope: nil, success: { (requestToken: BDBOAuth1Credential!) -> Void in
             print("Got the request token")
@@ -56,6 +54,7 @@ class TwitterClient: BDBOAuth1SessionManager {
     }
     
     func openURL(url: NSURL) {
+        
         fetchAccessTokenWithPath("oauth/access_token", method: "POST", requestToken: BDBOAuth1Credential(queryString: url.query), success: { (accessToken: BDBOAuth1Credential!) -> Void in
             print("Got access token")
             
@@ -77,38 +76,48 @@ class TwitterClient: BDBOAuth1SessionManager {
             }) { (error: NSError!) -> Void in
                 print("An error occurred")
                 self.loginCompletion?(user: nil, error: error)
-                
         }
         
     }
     
-    func getHomeTimeLine() -> [Tweet] {
+    func homeTimeline(params: NSDictionary?, completion: (tweets: [Tweet]?, error: NSError?) -> ()){
         var tweets :[Tweet]?
-        fetchAccessTokenWithPath("oauth/access_token", method: "POST", requestToken: BDBOAuth1Credential(queryString: getUrl().query), success: { (accessToken: BDBOAuth1Credential!) -> Void in
-            print("Got access token")
-            
-            TwitterClient.sharedInstance.GET("1.1/statuses/home_timeline.json", parameters: nil, progress: nil, success: { (operation: NSURLSessionDataTask, response: AnyObject?) -> Void in
-                //                print("It worked!!!")
-                //                print("user: \(response)")
-                tweets = Tweet.tweetswithArray(response as! [NSDictionary])
-                //print("*************\n\n Returned from Tweeter ****************")
-                //print(response)
-                //                for tweet in tweets {
-                //                    print("text: \(tweet.text), created: \(tweet.createdAt)")
-                //                    print("name: \(tweet.user),  :createdAtString \(tweet.createdAtString) ")
-                //                }
-                
-                }, failure: { (operation: NSURLSessionDataTask?, error: NSError) -> Void in
-                    print("It did not work")
-                    self.loginCompletion?(user: nil, error: error)
-                    
-            })
-            
-            }){ (error: NSError!) -> Void in
-                print("An error occurred")
+        
+        TwitterClient.sharedInstance.GET("1.1/statuses/home_timeline.json", parameters: nil, progress: nil, success: { (operation: NSURLSessionDataTask, response: AnyObject?) -> Void in
+//            print("It worked!!!")
+//            print("user: \(response)")
+            tweets = Tweet.tweetswithArray(response as! [NSDictionary])
+            completion(tweets: tweets, error: nil)
+
+            //            print("*************\n\n Returned from Tweeter ****************")
+//            print(response)
+//            for tweet in tweets! {
+//                print("text: \(tweet.text), created: \(tweet.createdAt)")
+//                print("name: \(tweet.user),  :createdAtString \(tweet.createdAtString) ")
+//            }
+//            print("After gethomTimeLine ")
+            }, failure: { (operation: NSURLSessionDataTask?, error: NSError) -> Void in
+                print("It did not work")
                 self.loginCompletion?(user: nil, error: error)
                 
+        })
         }
-        return tweets!
+    
+    func retweet(tweetId: String) {
+        
+        TwitterClient.sharedInstance.POST("1.1/statuses/retweet/\(tweetId).json", parameters: nil, success: { (operation: NSURLSessionDataTask, response: AnyObject?) -> Void in
+            print("successful retweet")
+            }) { (opreation: NSURLSessionDataTask?, error: NSError) -> Void in
+                print("can't retweet")
+        }
+    }
+    
+    func favorite(tweetId: String) {
+        
+        TwitterClient.sharedInstance.POST("1.1/favorites/create.json?id=\(tweetId)", parameters: nil, success: { (operation: NSURLSessionDataTask, response: AnyObject?) -> Void in
+            print("successful fav")
+            }) { (opreation: NSURLSessionDataTask?, error: NSError) -> Void in
+                print("can't fav")
+        }
     }
 }

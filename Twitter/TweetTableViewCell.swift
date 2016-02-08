@@ -20,7 +20,17 @@ class TweetTableViewCell: UITableViewCell {
     @IBOutlet weak var createdTime: UILabel!
     
     @IBOutlet weak var tweetText: UILabel!
+
+    @IBOutlet weak var retweetCountLabel: UILabel!
     
+    @IBOutlet weak var favoriteCountLabel: UILabel!
+ 
+    @IBOutlet weak var retweetButton: UIButton!
+    
+    @IBOutlet weak var favoritesButton: UIButton!
+    
+    var tweetIdSpec: String!
+
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
@@ -31,6 +41,15 @@ class TweetTableViewCell: UITableViewCell {
         super.setSelected(selected, animated: animated)
 
         // Configure the view for the selected state
+    }
+    @IBAction func retweetAction(sender: AnyObject) {
+        TwitterClient.sharedInstance.retweet(tweetIdSpec!)
+
+    }
+    
+    @IBAction func favoritesAction(sender: AnyObject) {
+        TwitterClient.sharedInstance.favorite(tweetIdSpec!)
+
     }
 
 }
