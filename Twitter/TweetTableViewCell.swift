@@ -33,6 +33,7 @@ class TweetTableViewCell: UITableViewCell {
 
     override func awakeFromNib() {
         super.awakeFromNib()
+        profileImage.tag = 2;
         // Initialization code
         
     }

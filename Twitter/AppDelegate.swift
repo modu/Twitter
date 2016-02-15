@@ -15,7 +15,7 @@ import AFNetworking
 class AppDelegate: UIResponder, UIApplicationDelegate {
     
     var window: UIWindow?
-    var storyboard = UIStoryboard(name: "Main", bundle: nil)  /*Storyboards are just xml and they can be refered like this?*/
+    let storyboard = UIStoryboard(name: "Main", bundle: nil)  /*Storyboards are just xml and they can be refered like this?*/
     
     
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
@@ -27,11 +27,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             // Go to the logged in screen
             print("current user detected : \(User.currentUser?.name)")
             
-            let vc = storyboard.instantiateViewControllerWithIdentifier("TweetsViewController") as UIViewController
+            let vc = storyboard.instantiateViewControllerWithIdentifier("navVC") as UIViewController
             
             window?.rootViewController = vc
         }
+        else {
+            print("No User loged in, Need to log in")
+            let vc = storyboard.instantiateViewControllerWithIdentifier("ViewController") as UIViewController
+            
+            window?.rootViewController = vc
+
+        }
         print("application started ")
+        
         return true
     }
     

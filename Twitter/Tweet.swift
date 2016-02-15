@@ -20,7 +20,7 @@ class Tweet: NSObject {
     var favCount: Int?
     var retweetCount: Int?
     var tweetId: String?
-
+    var tag: Int?
     init(dictionary: NSDictionary) {
         user = User(dictionary: dictionary["user"] as! NSDictionary)
         text = dictionary["text"] as? String

@@ -120,4 +120,40 @@ class TwitterClient: BDBOAuth1SessionManager {
                 print("can't fav")
         }
     }
+    
+    func reply(text: String, statusId: String) {
+        var escapedText = text.stringByAddingPercentEscapesUsingEncoding(NSUTF8StringEncoding)
+        print("1.1/statuses/update.json?status=\(escapedText!)?in_reply_to_status_id=\(statusId)")
+        TwitterClient.sharedInstance.POST("1.1/statuses/update.json?status=\(escapedText!)&in_reply_to_status_id=\(statusId)", parameters: nil, success: { (operation: NSURLSessionDataTask, response: AnyObject?) -> Void in
+            print("successful reply")
+            }) { (operation: NSURLSessionDataTask?, error: NSError) -> Void in
+                print("can't reply")
+        }
+        
+    }
+    
+    func getProfile(screenName: String!) {
+        TwitterClient.sharedInstance.GET("1.1/users/show.json?screen_name=\(screenName!)", parameters: nil, success: { (operation: NSURLSessionDataTask, response: AnyObject?) -> Void in
+            print("Successfully got user")
+            print("\(response)")
+            
+            }) { (operation: NSURLSessionDataTask?, error: NSError) -> Void in
+                print("Can't get user")
+        }
+        
+    }
+
+    func makeTweet(text: String) {
+        var escapedText = text.stringByAddingPercentEscapesUsingEncoding(NSUTF8StringEncoding)
+        
+        TwitterClient.sharedInstance.POST("1.1/statuses/update.json?status=\(escapedText!)", parameters: nil, success: { (operation: NSURLSessionDataTask, response: AnyObject?) -> Void in
+            print("successful tweet")
+            }) { (operation: NSURLSessionDataTask?, error: NSError) -> Void in
+                print("can't tweet")
+        }
+        
+    }
+
+    
+    
 }
