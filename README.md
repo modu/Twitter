@@ -62,7 +62,7 @@ limitations under the License.
 
 
 
-# Project 5 - TwitterClone
+# Project 5 - Twitter
 
 Time spent: 11 hours spent in total
 
